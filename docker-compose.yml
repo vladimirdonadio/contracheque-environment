@@ -1,0 +1,35 @@
+version: "3.7"
+
+x-default-opts: &default-opts
+  restart: unless-stopped
+  networks:
+    - proxy
+  logging:
+    options:
+      max-size: "1m"
+
+services:
+
+  contracheque-api:
+    <<: *default-opts
+    container_name: contracheque-api
+    image: registry.apps.rio.gov.br/rio/java/contracheque/api:latest
+    build: 
+      context: ../contracheque-api
+      dockerfile: ./src/main/docker/Dockerfile.fast-jar
+    environment:
+      - QUARKUS_LAUNCH_DEVMODE=true
+      - QUARKUS_DATASOURCE_JDBC_DRIVER=${CONTRACHEQUE_DATASOURCE_JDBC_DRIVER}
+      - QUARKUS_DATASOURCE_JDBC_URL=${CONTRACHEQUE_DATASOURCE_JDBC_URL}
+      - QUARKUS_DATASOURCE_USERNAME=${CONTRACHEQUE_DATASOURCE_USERNAME}
+      - QUARKUS_DATASOURCE_PASSWORD=${CONTRACHEQUE_DATASOURCE_PASSWORD}
+      - QUARKUS_AMBIENTE=${CONTRACHEQUE_AMBIENTE}
+      - JAVA_OPTS_APPEND=-Xms512m -Xmx512
+      - JAVA_ENABLE_DEBUG=true
+      - TZ=America/Recife
+    ports:
+      - 8080:8080
+      - 5005:5005
+
+networks:
+  proxy: 
